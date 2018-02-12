@@ -1,0 +1,204 @@
+{
+	"info": {
+		"name": "Habra",
+		"_postman_id": "c49038b0-5b31-7a35-bf2f-222a99e1c7f0",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get user id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "a6354ea7-8835-4caf-8b31-8961636d336f",
+						"type": "text/javascript",
+						"exec": [
+							"try {",
+							"    // сохраняем userId из json ответа в окружение",
+							"    pm.environment.set(\"userId\", pm.response.json().args.userId);",
+							"} catch(e) {",
+							"    console.log(e);",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "https://postman-echo.com/get?userId={{newUserId}}",
+					"protocol": "https",
+					"host": [
+						"postman-echo",
+						"com"
+					],
+					"path": [
+						"get"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "{{newUserId}}",
+							"equals": true
+						}
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Update username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bd2b4412-c251-4b53-9306-ded0f4637117",
+						"type": "text/javascript",
+						"exec": [
+							"// проверим, что userId из окружения равен userId из ответа",
+							"pm.test(\"userId from env is equal to userId from response\", function () {",
+							"    pm.expect(parseInt(pm.environment.get(\"userId\"))).to.equal(",
+							"        pm.response.json().data.userId",
+							"    );",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"userId\": {{userId}}, \"username\": \"Bob\"}"
+				},
+				"url": {
+					"raw": "https://postman-echo.com/post",
+					"protocol": "https",
+					"host": [
+						"postman-echo",
+						"com"
+					],
+					"path": [
+						"post"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8f5243fe-f268-4c56-b51b-62847219c335",
+						"type": "text/javascript",
+						"exec": [
+							"// получаем профиль из ответа",
+							"var profile = pm.response.json().data.profile;",
+							"",
+							"// описываем схему модели",
+							"var scheme = {",
+							"    // тип объекта",
+							"    \"type\": \"object\",",
+							"    // обязательные свойства",
+							"    \"required\": [\"userId\", \"username\"],",
+							"    // описание свойств",
+							"    \"properties\": {",
+							"        \"userId\": {\"type\": \"integer\"},",
+							"        \"username\": {\"type\": \"string\"},",
+							"        \"age\": {\"type\": \"integer\"},",
+							"        // описание массива",
+							"        \"scores\": {",
+							"            \"type\": \"array\",",
+							"            // тип элементов",
+							"            \"items\": {\"type\": \"integer\"}",
+							"        },",
+							"        // вложенный объект",
+							"        \"rating\": {",
+							"            \"type\": \"object\",",
+							"            \"properties\": {",
+							"                \"min\": {\"type\": \"integer\"},",
+							"                \"max\": {\"type\": \"integer\"}",
+							"            }",
+							"        }",
+							"        ",
+							"    }",
+							"};",
+							"",
+							"pm.test('Schema is valid', function() {",
+							"    var isValidScheme = tv4.validate(profile, scheme, true, true);",
+							"    ",
+							"    pm.expect(isValidScheme).to.be.true;",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"profile\" : {\n\t\t\"userId\":   {{userId}},\n\t\t\"username\": \"Bob\",\n\t\t\"scores\":   [1, 2, 3, 4, 5],\n\t\t\"age\": 21,\n\t\t\"rating\": {\"min\": 20, \"max\": 100}\n\t}\n}"
+				},
+				"url": {
+					"raw": "https://postman-echo.com/post",
+					"protocol": "https",
+					"host": [
+						"postman-echo",
+						"com"
+					],
+					"path": [
+						"post"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "4c958ed5-ed0b-454a-b89e-f4e4c5c9d255",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "f78e00da-4a0e-478d-84b3-14617cfee7f0",
+				"type": "text/javascript",
+				"exec": [
+					"// тестируем статус ответа и формат",
+					"pm.test(\"Status is ok, response is json\", function () {",
+					"     pm.response.to.be.ok;",
+					"     pm.response.to.be.json;",
+					"});"
+				]
+			}
+		}
+	]
+}
